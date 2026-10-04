@@ -4,14 +4,14 @@
 <title>Última Picada</title>
 <style>
 :root{--bg:#0d1511;--fg:#a8f0a0;--am:#ffc04d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html,body{height:100%;margin:0;background:var(--bg);overflow:hidden;touch-action:none;color:var(--fg);font-family:Georgia,'Times New Roman',serif}
+html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;height:100%;margin:0;background:var(--bg);overflow:hidden;touch-action:none;color:var(--fg);font-family:Georgia,'Times New Roman',serif}
 canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 #ov{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(8,14,11,.86);text-align:center;padding:24px}
 h1{margin:0;font-size:clamp(34px,9vw,60px);font-weight:700;letter-spacing:.02em}
 p{margin:0;max-width:34ch;line-height:1.5;font-size:16px;color:#cfe3cb}
 label{font-size:14px;color:#cfe3cb}
 input{width:200px;accent-color:var(--fg)}
-.b{position:fixed;bottom:calc(28px + env(safe-area-inset-bottom,0px));z-index:3;display:none;width:74px;height:74px;padding:0;border-radius:50%;font-size:15px;background:rgba(13,21,17,.6);color:var(--am);border-color:var(--am)}
+.b{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;position:fixed;bottom:calc(28px + env(safe-area-inset-bottom,0px));z-index:3;display:none;width:74px;height:74px;padding:0;border-radius:50%;font-size:15px;background:rgba(13,21,17,.6);color:var(--am);border-color:var(--am)}
 #rot{display:none;position:fixed;inset:0;z-index:9;background:var(--bg);align-items:center;justify-content:center;text-align:center;padding:24px;font-size:20px}
 @media (orientation:portrait) and (pointer:coarse){#rot{display:flex}}
 @media (orientation:landscape){#ov{justify-content:flex-start;overflow:auto;padding:12px;gap:8px}h1{font-size:28px}p{max-width:72ch;font-size:14px}}
@@ -54,7 +54,7 @@ a(4.4,.2,1.6,m,0,.2,4.1);a(.2,2,1.6,m,0,1,4.1);g.prop=a(.2,3.4,.3,d,0,0,-4.7);g.
 // estado
 let sp=0,sr=0,oth=-1,kB=0,kK=0,bst=1,bx=0,bk2=0,msl=null,used=0,st='menu',P,pl,cargo,en=[],bl=[],pt=[],ej,msgs=[],kills=0,t=0,warn='',hurt=0,fire=0,fOn=0,vib=0,endT=0,gy=false,b0=null,g0=0,calib=false,ob=0,og=0;
 const ptr={x:0,y:0};
-const GP=90,GR=45,crv=x=>Math.sign(x)*Math.pow(Math.min(1,Math.abs(x)),1.5); // grados de inclinación del móvil para el máximo: GP cabeceo, GR alabeo
+const GP=90,GR=45,crv=x=>Math.sign(x)*Math.pow(Math.min(1,Math.abs(x)),1.25); // grados de inclinación del móvil para el máximo: GP cabeceo, GR alabeo
 function msg(s,c){msgs.push({s,c:c||'#a8f0a0',t:2.2})}
 function part(p,v,col,life,sz,gro){if(pt.length>180)return;const m=new T.Mesh(PG,new T.MeshBasicMaterial({color:col,transparent:true,opacity:.9}));m.position.copy(p);m.scale.setScalar(sz);S.add(m);pt.push({m,v,life,max:life,sz,gro})}
 const PG=new T.SphereGeometry(1,6,5);
@@ -76,7 +76,8 @@ function pp(e){ptr.x=clamp((e.clientX/W-.5)*2,-1,1);ptr.y=clamp((e.clientY/H-.5)
 addEventListener('pointerdown',e=>{pp(e);fOn=1});addEventListener('pointermove',pp);addEventListener('pointerup',()=>fOn=0);
 addEventListener('keydown',e=>{if(!e.repeat&&(e.code=='KeyM'||e.code=='ControlLeft'))launch();if(e.code=='KeyQ')kB=1;if(e.code=='KeyA')kK=1;if(!e.repeat&&(e.code=='Enter'||e.code=='KeyR'))release();if(e.code=='Space')fOn=1})
 $('ms').addEventListener('pointerdown',e=>{e.stopPropagation();launch()});
-const hold=(id,fn)=>{const b=$(id);b.addEventListener('pointerdown',e=>{e.stopPropagation();fn(1)});['pointerup','pointercancel','pointerleave'].forEach(n=>b.addEventListener(n,()=>fn(0)))};hold('bs',v=>kB=v);hold('bk',v=>kK=v);
+addEventListener('contextmenu',e=>e.preventDefault());
+const hold=(id,fn)=>{const b=$(id);b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();b.setPointerCapture&&b.setPointerCapture(e.pointerId);fn(1)});['pointerup','pointercancel'].forEach(n=>b.addEventListener(n,()=>fn(0)))};hold('bs',v=>kB=v);hold('bk',v=>kK=v);
 $('rel').addEventListener('pointerdown',e=>{e.stopPropagation();release()});$('xt').addEventListener('pointerdown',e=>{e.stopPropagation();if(st=='fly'||st=='eject')end('Misión abandonada','Has abortado la misión.')});addEventListener('keyup',e=>{if(e.code=='Space')fOn=0;if(e.code=='KeyQ')kB=0;if(e.code=='KeyA')kK=0});
 $('fov').oninput=e=>$('fv').textContent=e.target.value;
 $('go').onclick=async()=>{try{if(window.DeviceOrientationEvent&&DeviceOrientationEvent.requestPermission)await DeviceOrientationEvent.requestPermission()}catch(e){}
@@ -84,11 +85,11 @@ try{await document.documentElement.requestFullscreen();await screen.orientation.
 init();$('ov').style.display='none';ui(1);st='fly';last=performance.now()};
 function end(ti,tx){st='end';ui(0);$('t').textContent=ti;$('d').textContent=tx;$('go').textContent='Otra misión';$('ov').style.display='flex'}
 // vuelo
-function phys(pi,dt,roll){const k=clamp(P.v/90,.55,1),q=pl.quaternion;q.multiply(qa.setFromAxisAngle(AX,pi*1.2*k*dt));
+function phys(pi,dt,roll){const k=clamp(P.v/90,.55,1),q=pl.quaternion;q.multiply(qa.setFromAxisAngle(AX,pi*1.6*k*dt));
 const r=V(1,0,0).applyQuaternion(q),u=V(0,1,0).applyQuaternion(q),ph=Math.atan2(-r.y,u.y),wv=clamp((.98-Math.abs(fw(pl).y))/.12,0,1);
-if(roll===undefined){const e=(P.tr-ph+9.4248)%6.2832-3.1416,rr=clamp(e*4,-2.8,2.8)*wv+(1-wv)*(P.ro||0)*2.2;q.multiply(qa.setFromAxisAngle(AZ,-rr*dt))}else q.multiply(qa.setFromAxisAngle(AZ,roll*dt));
+if(roll===undefined){const e=(P.tr-ph+9.4248)%6.2832-3.1416,rr=clamp(e*6,-3.6,3.6)*wv+(1-wv)*(P.ro||0)*2.2;q.multiply(qa.setFromAxisAngle(AZ,-rr*dt))}else q.multiply(qa.setFromAxisAngle(AZ,roll*dt));
 q.premultiply(qa.setFromAxisAngle(AY,-Math.sin(ph)*.8*k*wv*dt));q.normalize();
-const f=fw(pl);P.v=Math.max(10,P.v+(6-.0009*P.v*P.v-55*f.y-Math.abs(pi)*.06*P.v)*dt);if(P.bo)P.v=Math.max(P.v,Math.min(165,P.v+70*dt));if(kK)P.v=Math.max(10,P.v-45*dt);pl.position.addScaledVector(f,P.v*dt);pl.prop.rotation.z+=40*dt}
+const f=fw(pl);P.v=Math.max(10,P.v+(9-.0009*P.v*P.v-(f.y>0?25:55)*f.y-Math.abs(pi)*.04*P.v)*dt);if(P.bo)P.v=Math.max(P.v,Math.min(165,P.v+70*dt));if(kK)P.v=Math.max(10,P.v-45*dt);pl.position.addScaledVector(f,P.v*dt);pl.prop.rotation.z+=40*dt}
 let last=0,fov=70;
 function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000||.016);last=now;
 if(st=='fly'||st=='eject')step(dt);R.render(S,C);draw(dt)}
@@ -96,11 +97,11 @@ function step(dt){const t0=t;if(!P.carry)t+=dt;if(t0<4&&t>=4)msg('TARGETS AHEAD 
 const f=fw(pl),alt=pl.position.y;
 if(st=='fly'&&P.carry){pl.position.copy(cargo.position).add(V(0,-7,0));pl.quaternion.identity();P.v=70;warn=''}else if(st=='fly'){let pi,ro;
 if(gy&&b0!==null){pi=crv(((ob-b0+540)%360-180)/GP);ro=crv((og-g0)/GR)}else{pi=ptr.y;ro=ptr.x}
-if(Math.abs(pi)<.06)pi=0;if(Math.abs(ro)<.06)ro=0;sp+=(pi-sp)*Math.min(1,dt*10);sr+=(ro-sr)*Math.min(1,dt*10);pi=sp;ro=sr;
-if(t<2.5){pi=-.7;ro=0}const ow=onRw()&&pl.position.y<2.6,ow2=onRw()&&pl.position.y<6;P.pi=pi;const bo=kB&&!bx&&bst>0;if(bst<=0)bx=1;if(bst>=.25)bx=0;bst=clamp(bst+(bo?-dt/4:dt/5),0,1);P.bo=bo;bk2+=((bo?1:0)-bk2)*Math.min(1,dt*6);if(bo)part(pl.position.clone().addScaledVector(fw(pl),5),fw(pl).multiplyScalar(-P.v*.2),0xffa040,.35,1.8,1.5);if(P.v<34&&!ow2)pi=pi+(-1-pi)*clamp((34-P.v)/12,0,1);if(ow&&!(pi>.15&&P.v>42)){pi=0;ro=0;P.v=clamp(P.v+(kK?-30:16)*dt,0,95)}
+if(Math.abs(pi)<.06)pi=0;if(Math.abs(ro)<.06)ro=0;sp+=(pi-sp)*Math.min(1,dt*28);sr+=(ro-sr)*Math.min(1,dt*28);pi=sp;ro=sr;
+if(t<.8){pi=-.5;ro=0}const ow=onRw()&&pl.position.y<2.6,ow2=onRw()&&pl.position.y<6;P.pi=pi;const bo=kB&&!bx&&bst>0;if(bst<=0)bx=1;if(bst>=.25)bx=0;bst=clamp(bst+(bo?-dt/4:dt/5),0,1);P.bo=bo;bk2+=((bo?1:0)-bk2)*Math.min(1,dt*6);if(bo)part(pl.position.clone().addScaledVector(fw(pl),5),fw(pl).multiplyScalar(-P.v*.2),0xffa040,.35,1.8,1.5);if(P.v<28&&!ow2)pi=pi+(-1-pi)*clamp((28-P.v)/10,0,1);if(ow&&!(pi>.15&&P.v>42)){pi=0;ro=0;P.v=clamp(P.v+(kK?-30:16)*dt,0,95)}
 P.tr=ro*1.5708;P.ro=ro;phys(pi,dt);
-const f2=fw(pl),k=clamp(P.v/90,.55,1),rad=P.v/(1.2*k),g=Math.asin(clamp(-f2.y,-1,1)),need=f2.y<0?rad*(1-Math.cos(g)):0,mg=pl.position.y-need;
-warn=P.v<34&&!ow2?'STALL':mg<250?'PULL UP':mg<700?'SINK RATE':'';
+const f2=fw(pl),k=clamp(P.v/90,.55,1),rad=P.v/(1.6*k),g=Math.asin(clamp(-f2.y,-1,1)),need=f2.y<0?rad*(1-Math.cos(g)):0,mg=pl.position.y-need;
+warn=P.v<30&&!ow2?'STALL':mg<250?'PULL UP':mg<700?'SINK RATE':'';
 if(warn=='PULL UP'&&now0()-vib>500){vib=now0();navigator.vibrate&&navigator.vibrate(120)}
 if(f2.y<0&&mg<0&&t>3){st='eject';startEject();return}
 if(pl.position.y<2.2){const up=V(0,1,0).applyQuaternion(pl.quaternion);if(onRw()&&P.v<90&&f2.y>-.3&&up.y>.7){pl.position.y=2.2;if(!(P.pi>.15&&P.v>42))pl.quaternion.setFromAxisAngle(AY,Math.atan2(-f2.x,-f2.z));if(!P.td){P.td=1;msg('TOUCHDOWN — BRAKE (A) TO REARM','#ffc04d')}if(P.v<30&&!P.rm){P.rm=1;used=0;P.hp=100;bst=1;bx=0;msg('REARMED','#ffc04d')}}else{crash(pl.position,'IMPACTO','Te estrellaste contra el suelo.');return}}else if(pl.position.y>30){P.td=0;P.rm=0}
@@ -124,7 +125,7 @@ pt=pt.filter(p=>{p.life-=.016*(1);p.m.position.addScaledVector(p.v,dt);p.m.scale
 if(msl){const m=msl.m;if(en.includes(msl.e)){m.quaternion.rotateTowards(new T.Quaternion().setFromRotationMatrix(new T.Matrix4().lookAt(m.position,msl.e.m.position,AY)),2.4*dt);if(m.position.distanceTo(msl.e.m.position)<18){kill(msl.e);S.remove(m);msl=null}}
 if(msl){m.position.addScaledVector(fw(m),msl.v*dt);part(m.position.clone(),V(0,0,0),0xcccccc,1.2,1.5,3);msl.t-=dt;if(msl.t<=0||m.position.y<0){boom(m.position,1);S.remove(m);msl=null}}}
 // cámara
-if(st=='fly'){const off=V(0,3.2,13).applyQuaternion(pl.quaternion).add(pl.position);C.position.lerp(off,1-Math.exp(-10*dt));C.quaternion.slerp(pl.quaternion,1-Math.exp(-6*dt));
+if(st=='fly'){const off=V(0,3.2,13).applyQuaternion(pl.quaternion).add(pl.position);C.position.lerp(off,1-Math.exp(-10*dt));C.quaternion.slerp(pl.quaternion,1-Math.exp(-9*dt));
 const base=+$('fov').value;fov+=(base+clamp((P.v-60)/200,0,1)*14+bk2*14-fov)*.1;C.fov=fov;C.updateProjectionMatrix()}}
 function kill(e){boom(e.m.position,2);S.remove(e.m);en=en.filter(x=>x!=e);kills++;msg('SPLASH '+kills,'#ffc04d')}
 function lock(){if(used)return null;let b=null,bd=.93;const f=fw(pl);for(const e of en){const d=e.m.position.clone().sub(pl.position),l=d.length();if(l>3000)continue;const c=f.dot(d)/l;if(c>bd){bd=c;b=e}}return b}
